@@ -15,8 +15,8 @@ polymer-element(name="iloveck101-gallery")
       resizeDelay: null,
 
       photosChanged: function () {
-        this.currentIndex = null;
-        this.display(0);
+        this.currentIndex = 0;
+        this.currentIndexChanged();
       },
 
       currentIndexChanged: function () {
