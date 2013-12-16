@@ -25,6 +25,8 @@ iloveck101
 
 ## 看起來像這樣
 
+![圖片](https://raw.github.com/poying/iloveck101/master/screenshot.png) 
+
 ## License
 
 Copyright (c) 2013 Po-Ying Chen Licensed under the MIT license.
