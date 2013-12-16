@@ -46,6 +46,7 @@ iloveck101.controller('iloveck101ManagerCtrl', ['$scope', '$http', '$rootElement
   $scope.checkUrlAndCreateAlbum = function () {
     updateCreateAlbumStatus('processing');
     var url = createAlbumDialog.ckurl;
+    createAlbumDialog.ckurl = '';
     if (!$scope.isCKThreadUrl(url)) {
       return updateCreateAlbumStatus('thisIsNotCK');
     }

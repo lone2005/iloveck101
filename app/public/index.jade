@@ -20,7 +20,7 @@ html(lang="en")
           input.iloveck101-manager__sidebar__search(ng-model="searchText", type="text", placeholder="Search...")
           a.iloveck101-manager__sidebar__create-album(ng-click="showCreateAlbumDialog()")
         ul.iloveck101-manager__album-list
-          li.iloveck101-manager__album-list__album(ng-repeat="album in albums | filter:searchText")
+          li.iloveck101-manager__album-list__album(ng-repeat="album in albums track by $index | filter:searchText")
             iloveck101-album(data-index="{{ $index }}", albumId="{{ album.id }}", url="{{ album.url }}", downloaded="{{ album.downloaded }}", name="{{ album.name }}", thisIsAnAlbum)
 
       iloveck101-gallery.iloveck101-manager__gallery
