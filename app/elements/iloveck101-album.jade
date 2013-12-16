@@ -1,0 +1,223 @@
+script(src="../idb.filesystem.js/src/idb.filesystem.min.js")
+script(src="../canvas-toBlob.js/canvas-toBlob.js")
+link(rel="import", href="../polymer/polymer.html")
+link(rel="import", href="../polymer-ajax/polymer-ajax.html")
+link(rel="import", href="../polymer-jsonp/polymer-jsonp.html")
+
+polymer-element(name="iloveck101-album", \attributes="albumId downloaded url name", on-track="{{ track }}", on-trackend="{{ trackEnd }}")
+  template(bind)
+    link(rel="stylesheet", href="./iloveck101-album.css")
+    template(if="{{ processing }}")
+      | 處理中
+      template(if="{{ !!total }}")
+        span ({{ finished }}/{{ total }})
+      | ...
+    template(if="{{ !processing }}")
+      .cover
+        img(src="{{ cover }}")
+      span.name {{ name }}
+  script.
+    var iloveck101 = {
+      fs: null,
+      URL: (window.URL || window.webkitURL),
+      requestFileSystem: (window.requestFileSystem || window.webkitRequestFileSystem).bind(window),
+      openFs: function () {
+        iloveck101.requestFileSystem(TEMPORARY, 1024 * 1024, function (myfs) {
+          iloveck101.fs = myfs;
+        });
+      },
+      uuid: function () {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+      },
+      prefix: (function () {
+        var style = window.getComputedStyle(document.documentElement);
+        var match = Array.prototype.join.call(style, '').match(/-(?:o|moz|webkit|ms)-/i);
+        return match && match[0];
+      })()
+    };
+
+    iloveck101.openFs();
+
+    Polymer('iloveck101-album', {
+      albumId: null,
+      downloaded: false,
+      url: '',
+      name: 'unknown',
+
+      processing: true,
+      cover: null,
+      photos: null,
+      size: 0,
+      error: null,
+
+      finished: 0,
+      total: 0,
+
+      finishedChanged: function () {
+        if (this.finished === this.total) {
+          this.downloaded = true;
+          this.fire('iloveck101-download-finished');
+          this.getAllPhotos();
+        }
+      },
+
+      processingChanged: function () {
+        if (this.processing) {
+          this.fire('iloveck101-processing-done');
+        }
+      },
+
+      created: function () {
+        this.photos = [];
+      },
+
+      ready: function () {
+        setTimeout((function () {
+          if (this.downloaded) {
+            this.getAllPhotos();
+          } else {
+            this.download();
+          }
+        }).bind(this));
+      },
+
+      getAllPhotos: function () {
+        if (!iloveck101.fs) {
+          return setTimeout((function () {
+            this.getAllPhotos();
+          }).bind(this), 500);
+        }
+        iloveck101.fs.root.getDirectory(this.albumId, {}, (function (dirEntry) {
+          dirEntry.createReader().readEntries((function (results) {
+            var size = 0;
+            var photos = this.photos;
+            var len = results.length;
+            var done = (function () {
+              len -= 1;
+              if (len === 0) {
+                this.size = size;
+                this.processing = false;
+                this.cover = photos[0];
+              }
+            }).bind(this);
+            results.forEach(function (entry) {
+              if (entry.isFile) {
+                entry.file(function (file) {
+                  size += Math.round(file.size * 100 / (1024 * 1024)) / 100;
+                  photos.push(iloveck101.URL.createObjectURL(file));
+                  done();
+                });
+              }
+            });
+          }).bind(this));
+        }).bind(this));
+      },
+
+      download: function () {
+        this.getHTML((function (err, doc) {
+          if (err) {
+            this.error = '網址讀取失敗';
+          } else {
+            var imgs = doc.querySelectorAll('#postlist .plhin:nth-of-type(2) .t_fsz img.zoom');
+            var name = doc.querySelector('#thread_subject');
+            this.name = name.innerHTML;
+            this.total = imgs.length;
+            Array.prototype.forEach.call(imgs, (function (img) {
+              var src = img.getAttribute('file');
+              if (src) {
+                this.downloadImage(src);
+              } else {
+                this.total -= 1;
+              }
+            }).bind(this));
+          }
+        }).bind(this));
+      },
+
+      getHTML: function (cb) {
+        var jsonp = document.createElement('polymer-jsonp');
+        jsonp.addEventListener('polymer-response', (function (e) {
+          var res = jsonp.response;
+          cb(null, this.HTMLParser(res && res.results) || '');
+        }).bind(this));
+        jsonp.addEventListener('polymer-error', function (e) {
+          cb(new Error('error'));
+        });
+        jsonp.url = this.getQueryUrl(this.url);
+        jsonp.go();
+      },
+
+      getQueryUrl: function (url) {
+        return 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + encodeURIComponent(url) + '%22%20and%20compat%3D%22html5%22&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=';
+      },
+
+      HTMLParser: function (html) {
+        var parser = new DOMParser();
+        return parser.parseFromString(html, "text/html");
+      },
+
+      downloadImage: function (src) {
+        var img = document.createElement('img');
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+
+        img.setAttribute('crossorigin','anonymous');
+
+        img.addEventListener('load', (function () {
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          context.drawImage(img, 0, 0);
+          canvas.toBlob((function (blob) {
+            this.saveImage(blob, (function (err) {
+              this.finished += 1;
+            }).bind(this));
+          }).bind(this));
+        }).bind(this));
+
+        img.addEventListener('error', (function () {
+          this.finished += 1;
+        }).bind(this));
+
+        img.src = this.proxy(src);
+      },
+
+      proxy: function (url) {
+        return 'http://localhost:3000/proxy?file=' + url;
+      },
+
+      saveImage: function (blob, cb) {
+        iloveck101.fs.root.getDirectory(this.albumId, {create: true}, (function (dirEntry) {
+          dirEntry.getFile(iloveck101.uuid(), {create: true}, (function (file) {
+            file.createWriter((function (writer) {
+              writer.onwriteend = (function () {
+                cb(null);
+              }).bind(this);
+              writer.write(blob);
+            }).bind(this), (function () {
+              cb(new Error('error'));
+            }).bind(this));
+          }).bind(this));
+        }).bind(this));
+      },
+
+      track: function (e) {
+        this.setAttribute('style', iloveck101.prefix + 'transform: translate3d(' + e.dx + 'px, 0, 0)');
+      },
+
+      trackEnd: function (e) {
+        if (Math.abs(e.dx) > 50) {
+          this.remove();
+        } else {
+          this.setAttribute('style', '');
+        }
+      },
+
+      remove: function () {
+        this.classList.add('removed');
+        iloveck101.fs.root.getDirectory(this.albumId, {}, (function (dirEntry) {
+          dirEntry.removeRecursively((function () {
+            this.fire('iloveck101-removed');
+          }).bind(this));
+        }).bind(this));
+      }
+    });

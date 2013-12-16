@@ -1,0 +1,33 @@
+@import "nib"
+
+:host
+  clearfix()
+  display: block
+  color: #666
+  padding: 10px
+  border-bottom: 1px #E5E5E5 solid
+  line-height: 1.5em
+  user-select: none
+  opacity: 1
+  transition: opacity .4s
+
+  &:hover
+    background: rgba(0, 0, 0, .01)
+
+  &.removed
+    opacity: 0
+
+.cover
+  width: 40px
+  height: @width
+  border-radius: (@width / 2)
+  overflow: hidden
+  float: left
+  
+  img
+    width: 100%
+    height: auto
+
+.name
+  float: right
+  width: calc(100% - 50px)

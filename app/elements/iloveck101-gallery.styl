@@ -1,0 +1,50 @@
+@import "nib"
+
+:host
+  display: block
+  position: relative
+  overflow: hidden
+
+  &:hover
+    .next-btn
+    .prev-btn
+      opacity: 1
+
+.next-btn
+.prev-btn
+  display: block
+  position: absolute
+  top: 50%
+  background: #EEE
+  color: #999
+  line-height: 30px
+  width: 100px
+  text-align: center
+  transform: translate3d(0, -15px, 0);
+  cursor: pointer
+  z-index: 2
+  transition: opacity .4s
+  opacity: 0
+
+  &:hover
+    color: #666
+
+.next-btn
+  right: 0
+
+.prev-btn
+  left: 0
+
+.prepare-image
+.current-image
+  transition: opacity .4s
+  position: absolute
+  left: 50%
+  top: 50%
+  z-index: 1
+
+.current-image
+  opacity: 1
+
+.prepare-image
+  opacity: 0

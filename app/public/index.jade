@@ -1,0 +1,32 @@
+doctype 5
+html(lang="en")
+  head
+    title iloveck101
+    script(src="./components/angular/angular.min.js")
+    script(src="./components/platform/platform.js")
+    link(rel="stylesheet", href="./css/style.css")
+    link(rel="import", href="./components/polymer/polymer.html")
+    link(rel="import", href="./components/iloveck101/iloveck101-album.html")
+    link(rel="import", href="./components/iloveck101/iloveck101-gallery.html")
+    script(src="./js/app.js")
+    script(src="./js/services/iloveck101Storage.js")
+    script(src="./js/directives/thisIsAnAlbum.js")
+    script(src="./js/controllers/iloveck101-manager.js")
+  body(ng-app="iloveck101-demo")
+    
+    #iloveck101-manager(ng-controller="iloveck101ManagerCtrl")
+      .iloveck101-manager__sidebar
+        .iloveck101-manager__sidebar__actions.clearfix
+          input.iloveck101-manager__sidebar__search(ng-model="searchText", type="text", placeholder="Search...")
+          a.iloveck101-manager__sidebar__create-album(ng-click="showCreateAlbumDialog()")
+        ul.iloveck101-manager__album-list
+          li.iloveck101-manager__album-list__album(ng-repeat="album in albums | filter:searchText")
+            iloveck101-album(data-index="{{ $index }}", albumId="{{ album.id }}", url="{{ album.url }}", downloaded="{{ album.downloaded }}", name="{{ album.name }}", thisIsAnAlbum)
+
+      iloveck101-gallery.iloveck101-manager__gallery
+      
+      div(ng-class="{'iloveck101-manager__create-album-dialog': true, show: createAlbumDialog.show}", ng-show="createAlbumDialog.show", ng-click="hideCreateAlbumDialog()")
+        form.iloveck101-manager__create-album-dialog__box(ng-submit="checkUrlAndCreateAlbum()", ng-click="ignoreEvent($event)")
+          input.iloveck101-manager__create-album-dialog__ckurl(ng-model="createAlbumDialog.ckurl", placeholder="請輸入卡題諾網址...")
+          .iloveck101-manager__create-album-dialog__status(ng-show="!!createAlbumDialog.status")
+            | {{ createAlbumDialog.status }}

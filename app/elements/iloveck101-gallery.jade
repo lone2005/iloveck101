@@ -1,0 +1,94 @@
+link(rel="import", href="../polymer/polymer.html")
+
+polymer-element(name="iloveck101-gallery")
+  template(if="{{ photos }}")
+    link(rel="stylesheet", href="iloveck101-gallery.css")
+    a.next-btn(on-click="{{ next }}") Next
+    a.prev-btn(on-click="{{ previous }}") Previous
+    img.current-image
+    img.prepare-image
+
+  script.
+    Polymer('iloveck101-gallery', {
+      photos: null,
+      currentIndex: null,
+      resizeDelay: null,
+
+      photosChanged: function () {
+        this.currentIndex = null;
+        this.display(0);
+      },
+
+      currentIndexChanged: function () {
+        if (typeof this.currentIndex !== 'number') {
+          return;
+        }
+
+        var current = this.shadowRoot.querySelector('.current-image');
+        var prepare = this.shadowRoot.querySelector('.prepare-image');
+
+        prepare.onload = (function () {
+          var container = this.getBoundingClientRect();
+          var size = {};
+
+          prepare.setAttribute('style', '');
+
+          if (prepare.naturalWidth > container.naturalHeight) {
+            if (prepare.naturalWidth > container.width) {
+              size.width = container.width;
+              size.height = prepare.naturalHeight * container.width / prepare.naturalWidth;
+            }
+          } else {
+            if (prepare.naturalHeight > container.height) {
+              size.height = container.height;
+              size.width = prepare.naturalWidth * container.height / prepare.naturalHeight;
+            }
+          }
+
+          size.width || (size.width = prepare.naturalWidth);
+          size.height || (size.height = prepare.naturalHeight);
+          
+          prepare.setAttribute('style', 'width: ' + size.width + 'px; height: ' + size.height  + 'px; margin-left: -' + (size.width / 2) + 'px; margin-top: -' + (size.height / 2) + 'px');
+
+          current.classList.remove('current-image');
+          current.classList.add('prepare-image');
+
+          prepare.classList.remove('prepare-image');
+          prepare.classList.add('current-image');
+
+          current.src = null;
+        }).bind(this);
+
+        prepare.src = this.photos[this.currentIndex];
+      },
+
+      display: function (index) {
+        if (this.photos[index]) {
+          this.currentIndex = index;
+        }
+      },
+
+      next: function () {
+        this.display(this.currentIndex + 1);
+      },
+
+      previous: function () {
+        this.display(this.currentIndex - 1);
+      },
+
+      enteredView: function () {
+        this.resizeHandler = this.resizeHandler.bind(this);
+        window.addEventListener('resize', this.resizeHandler);
+      },
+
+      leftView: function () {
+        window.removeEventListener('resize', this.resizeHandler);
+      },
+
+      resizeHandler: function () {
+        clearTimeout(this.resizeDelay);
+        this.resizeDelay = setTimeout((function () {
+          this.currentIndexChanged();
+        }).bind(this), 100);
+      }
+    })

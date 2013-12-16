@@ -1,0 +1,22 @@
+{
+  "name": "iloveck101",
+  "version": "0.0.0",
+  "authors": [
+    "Po-Ying Chen <poying.me@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "idb.filesystem.js": "ebidel/idb.filesystem.js",
+    "polymer": "Polymer/polymer#~0.1.1",
+    "angular": "~1.2.5",
+    "polymer-jsonp": "Polymer/polymer-jsonp#~0.1.1",
+    "canvas-toBlob.js": "eligrey/canvas-toBlob.js"
+  }
+}

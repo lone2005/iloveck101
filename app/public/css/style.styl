@@ -1,0 +1,117 @@
+@import "nib"
+
+global-reset()
+
+body
+  margin: 0
+  background: #F5F5F5
+  font-size: 14px
+  color: #333
+
+input, textarea
+  font-size: 14px
+  color: #333
+
+.clearfix
+  clearfix()
+
+#iloveck101-manager
+  position: absolute
+  height: 100%
+  width: 100%
+  left: 0
+  top: 0
+
+.iloveck101-manager__sidebar
+  position: absolute
+  left: 0
+  top: 0
+  height: 100%
+  width: 250px
+  background: #EEE
+  border-right: 1px #E9E9E9 solid
+  overflow: hidden
+
+.iloveck101-manager__sidebar__actions
+  border-bottom: 1px #E5E5E5 solid
+
+.iloveck101-manager__sidebar__create-album
+  position: relative
+  display: block
+  border-left: 1px #E5E5E5 solid
+  height: 40px
+  width: 40px
+  box-sizing: border-box
+  float: right
+  cursor: pointer
+
+  &:after
+  &:before
+    content: ''
+    position: absolute
+    width: 0px
+    height: 60%
+    left: 50%
+    top: 20%
+
+  &:after
+    border-left: 1px #CCC solid
+    transform: rotate(90deg)
+
+  &:before
+    border-right: 1px #CCC solid
+
+.iloveck101-manager__sidebar__search
+  outline: none
+  border: none
+  width: calc(100% - 40px)
+  height: 40px
+  padding: 0 10px;
+  box-sizing: border-box
+  letter-spacing: 1px
+  color: #999
+  background: none
+  float: left
+
+.iloveck101-manager__create-album-dialog
+  background: rgba(0, 0, 0, .5)
+  position: fixed
+  left: 0
+  top: 0
+  width: 100%
+  height: 100%
+  transform: translateZ(0)
+
+.iloveck101-manager__create-album-dialog__box
+  position: absolute
+  width: 300px
+  box-sizing: border-box
+  background: #FFF
+  left: 50%
+  top: 0
+  transform: translate3d(-150px, 0, 0)
+  box-shadow: 0 0 5px rgba(0, 0, 0, .2)
+
+.iloveck101-manager__create-album-dialog__ckurl
+  border: 0
+  outline: none
+  width: 100%
+  box-sizing: border-box
+  padding: 0 10px
+  height: 40px
+  color: #999
+  letter-spacing: 1px
+
+.iloveck101-manager__create-album-dialog__status
+  margin-top: 10px
+  padding: 10px
+  border-top: 1px #E5E5E5 solid
+  color: #999
+
+.iloveck101-manager__gallery
+  width: calc(100% - 250px)
+  height: 100%
+  position: absolute
+  right: 0
+  top: 0
+  user-select: none
