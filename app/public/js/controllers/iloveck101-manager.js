@@ -40,6 +40,7 @@ iloveck101.controller('iloveck101ManagerCtrl', ['$scope', '$http', '$rootElement
 
   $scope.hideCreateAlbumDialog = function (evt) {
     createAlbumDialog.show = false;
+    updateCreateAlbumStatus();
   };
 
   $scope.checkUrlAndCreateAlbum = function () {
